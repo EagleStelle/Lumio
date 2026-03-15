@@ -146,17 +146,19 @@ function updateTimerBar() {
 }
 
 function getDrainPerSecond() {
-  return 0.5 + Math.pow(round - 1, 1.45) * 0.15;
+  return 0.5 + Math.log2(round) * 0.35 + Math.pow(round - 1, 1.08) * 0.02;
 }
 
 function getComboBonus() {
-  if (!endless) return 0;
-  return Math.floor(streak / 5) * 0.5;
+  if (!endless || streak < 5) return 0;
+
+  const bonus = Math.log2(streak) * 0.6 + streak * 0.015;
+  return Math.min(bonus, 5);
 }
 
 function getEndlessDelta(isCorrect) {
-  const scale = 1 + Math.pow(round - 1, 1.15) * 0.025;
-  return isCorrect ? 4.2 * scale + getComboBonus() : -(4.6 * scale);
+  const scale = 1 + Math.pow(round - 1, 1.08) * 0.01;
+  return isCorrect ? 3.8 * scale + getComboBonus() : -(4.2 * scale);
 }
 
 function showComboPopup() {
