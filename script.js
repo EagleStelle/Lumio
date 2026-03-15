@@ -1,5 +1,5 @@
-import { bindLeverEvents, getLeverStates, setLevers } from "./lever.js";
-import { playSound } from "./sound.js";
+import { bindLeverEvents, getLeverStates, setLevers } from "/src/lever.js";
+import { playSound } from "/src/sound.js";
 import {
   setBulb,
   setStatus,
@@ -9,7 +9,7 @@ import {
   setGateNames,
   resetBulbs,
   playBulbSequence,
-} from "./ui.js";
+} from "/src/ui.js";
 
 const gates = ["AND", "OR", "NAND", "NOR", "XOR", "XNOR"];
 const MAX_ROUNDS = 10;
