@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumio</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-dark text-light d-flex align-items-center justify-content-center min-vh-100"
+  >
+    <main class="container py-2">
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <span
+                class="badge bg-success text-dark px-3 py-2 fs-6 shadow-sm text-white"
+              >
+                Easy Mode
+              </span>
+
+              <button
+                type="button"
+                class="btn btn-outline-light btn-sm"
+                id="fullscreenButton"
+                aria-label="Toggle fullscreen"
+                title="Fullscreen"
+                onclick="
+                  if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen?.();
+                  } else {
+                    document.exitFullscreen?.();
+                  }
+                "
+              >
+                <i class="bi bi-fullscreen"></i>
+              </button>
+            </div>
+
+            <div>
+              <span class="badge bg-success text-dark me-2 text-white">
+                Round <span id="roundNumber">1</span>
+              </span>
+              <span class="badge bg-secondary">
+                Score <span id="score">0</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="card bg-black border-secondary text-center mb-2">
+            <div class="card-body py-2">
+              <div class="text-secondary small">Gate</div>
+              <div class="fs-3 fw-bold" id="gateName">AND</div>
+            </div>
+          </div>
+
+          <div class="card bg-black border-secondary text-center mb-2">
+            <div class="card-body py-2">
+              <svg
+                id="bulbSvg"
+                width="120"
+                height="160"
+                viewBox="0 0 140 180"
+                aria-label="Lightbulb"
+                role="img"
+              >
+                <path
+                  id="bulbGlow"
+                  d="M70 15
+                   C42 15 20 37 20 65
+                   C20 82 28 95 38 106
+                   C47 116 52 126 52 136
+                   H88
+                   C88 126 93 116 102 106
+                   C112 95 120 82 120 65
+                   C120 37 98 15 70 15 Z"
+                  fill="#343a40"
+                  stroke="#6c757d"
+                  stroke-width="4"
+                />
+                <rect
+                  x="52"
+                  y="136"
+                  width="36"
+                  height="14"
+                  rx="4"
+                  fill="#6c757d"
+                ></rect>
+                <rect
+                  x="54"
+                  y="150"
+                  width="32"
+                  height="10"
+                  rx="3"
+                  fill="#6c757d"
+                ></rect>
+                <rect
+                  x="56"
+                  y="160"
+                  width="28"
+                  height="10"
+                  rx="3"
+                  fill="#6c757d"
+                ></rect>
+              </svg>
+
+              <div id="bulbStatus" class="small text-secondary mt-1">
+                Waiting for submission
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2 justify-content-center mb-2">
+            <div class="col-6">
+              <div class="card bg-black border-secondary text-center h-100">
+                <div
+                  class="card-body py-3 d-flex flex-column justify-content-center align-items-center"
+                >
+                  <div class="fw-semibold mb-2">A</div>
+
+                  <input type="checkbox" id="switchA" hidden />
+
+                  <label for="switchA" style="cursor: pointer">
+                    <svg
+                      width="72"
+                      height="92"
+                      viewBox="0 0 100 120"
+                      aria-label="Lever A"
+                    >
+                      <rect
+                        x="20"
+                        y="80"
+                        width="60"
+                        height="25"
+                        rx="6"
+                        fill="#343a40"
+                      />
+                      <circle cx="50" cy="80" r="6" fill="#6c757d" />
+                      <g id="leverA" transform="rotate(-35 50 80)">
+                        <rect
+                          x="47"
+                          y="38"
+                          width="6"
+                          height="42"
+                          rx="3"
+                          fill="#adb5bd"
+                        />
+                        <circle
+                          cx="50"
+                          cy="38"
+                          r="9"
+                          fill="#dee2e6"
+                          stroke="#6c757d"
+                          stroke-width="2"
+                        />
+                      </g>
+                    </svg>
+                  </label>
+
+                  <div class="mt-2">
+                    <strong id="switchALabel" class="text-secondary"
+                      >OFF</strong
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="card bg-black border-secondary text-center h-100">
+                <div
+                  class="card-body py-3 d-flex flex-column justify-content-center align-items-center"
+                >
+                  <div class="fw-semibold mb-2">B</div>
+
+                  <input type="checkbox" id="switchB" hidden />
+
+                  <label for="switchB" style="cursor: pointer">
+                    <svg
+                      width="72"
+                      height="92"
+                      viewBox="0 0 100 120"
+                      aria-label="Lever B"
+                    >
+                      <rect
+                        x="20"
+                        y="80"
+                        width="60"
+                        height="25"
+                        rx="6"
+                        fill="#343a40"
+                      />
+                      <circle cx="50" cy="80" r="6" fill="#6c757d" />
+                      <g id="leverB" transform="rotate(-35 50 80)">
+                        <rect
+                          x="47"
+                          y="38"
+                          width="6"
+                          height="42"
+                          rx="3"
+                          fill="#adb5bd"
+                        />
+                        <circle
+                          cx="50"
+                          cy="38"
+                          r="9"
+                          fill="#dee2e6"
+                          stroke="#6c757d"
+                          stroke-width="2"
+                        />
+                      </g>
+                    </svg>
+                  </label>
+
+                  <div class="mt-2">
+                    <strong id="switchBLabel" class="text-secondary"
+                      >OFF</strong
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid mt-2">
+            <button
+              class="btn btn-success btn-lg"
+              id="submitButton"
+              type="button"
+            >
+              Submit
+            </button>
+          </div>
+
+          <div class="card bg-dark border-secondary mt-2 d-none d-md-block">
+            <div class="card-body py-2">
+              <div class="text-secondary small text-center mb-1 fw-semibold">
+                Keyboard Controls
+              </div>
+
+              <div class="d-flex justify-content-center flex-wrap gap-2 small">
+                <span class="badge bg-secondary">1</span>
+                <span class="text-secondary">A</span>
+
+                <span class="badge bg-secondary">2</span>
+                <span class="text-secondary">B</span>
+
+                <span class="badge bg-success text-white">Enter</span>
+                <span class="text-secondary">Submit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
