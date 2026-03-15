@@ -18,10 +18,13 @@
         <div class="col-11 col-md-8 col-lg-6">
           <div class="card bg-black shadow-lg text-center" id="resultsCard">
             <div class="card-body py-5">
-              <h1 class="display-6 fw-bold mb-3">Game Over</h1>
+              <h1 class="display-6 fw-bold mb-3" id="resultsTitle">
+                Game Over
+              </h1>
 
               <div class="fs-2 fw-bold mb-2" id="scoreDisplay">
-                <span id="finalScore">0</span> / 10
+                <span id="finalScore">0</span
+                ><span id="scoreSuffix"> / 10</span>
               </div>
 
               <p class="mb-4" id="scoreMessage">Nice try.</p>
@@ -43,13 +46,26 @@
       const lastPage =
         sessionStorage.getItem("lightbulbLastPage") || "game-easy.html";
       const mode = sessionStorage.getItem("lightbulbMode") || "easy";
+      const endless = sessionStorage.getItem("lightbulbEndless") === "1";
 
       const resultsCard = document.getElementById("resultsCard");
       const scoreDisplay = document.getElementById("scoreDisplay");
       const playAgainLink = document.getElementById("playAgainLink");
+      const scoreSuffix = document.getElementById("scoreSuffix");
+      const resultsTitle = document.getElementById("resultsTitle");
+      const scoreMessage = document.getElementById("scoreMessage");
 
       document.getElementById("finalScore").textContent = score;
-      playAgainLink.href = lastPage;
+
+      if (endless) {
+        scoreSuffix.textContent = "";
+        resultsTitle.textContent = "Endless Over";
+        playAgainLink.href = `${lastPage}?mode=${mode}&endless=1`;
+      } else {
+        scoreSuffix.textContent = " / 10";
+        resultsTitle.textContent = "Game Over";
+        playAgainLink.href = `${lastPage}?mode=${mode}`;
+      }
 
       let borderClass = "border-success";
       let textClass = "text-success";
@@ -74,13 +90,40 @@
       playAgainLink.classList.add(buttonClass);
 
       let message = "Nice try.";
-      if (score === 10) message = "Perfect score.";
-      else if (score >= 8) message = "Excellent job.";
-      else if (score >= 6) message = "Good work.";
-      else if (score >= 4) message = "Not bad.";
-      else message = "Try again and beat your score.";
 
-      document.getElementById("scoreMessage").textContent = message;
+      if (endless) {
+        if (score >= 50) {
+          message =
+            "Legendary run. You kept the circuit alive for a long time.";
+        } else if (score >= 35) {
+          message = "Amazing survival. The pressure barely slowed you down.";
+        } else if (score >= 25) {
+          message = "Strong run. You handled the rising pressure well.";
+        } else if (score >= 15) {
+          message = "Solid survival. You were holding on well.";
+        } else if (score >= 8) {
+          message = "Good effort. You lasted a while in endless mode.";
+        } else if (score >= 4) {
+          message = "A decent start. Endless gets brutal fast.";
+        } else {
+          message =
+            "Endless is unforgiving. Flip the lever and try another run.";
+        }
+      } else {
+        if (score === 10) {
+          message = "Perfect score.";
+        } else if (score >= 8) {
+          message = "Excellent job.";
+        } else if (score >= 6) {
+          message = "Good work.";
+        } else if (score >= 4) {
+          message = "Not bad.";
+        } else {
+          message = "Try again and beat your score.";
+        }
+      }
+
+      scoreMessage.textContent = message;
     </script>
   </body>
 </html>

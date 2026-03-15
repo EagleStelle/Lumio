@@ -17,17 +17,81 @@
     <main class="container-fluid h-100 py-2 py-md-3">
       <div class="row justify-content-center align-items-center h-100">
         <div class="col-12 col-md-10 col-lg-8 col-xl-7 col-xxl-6 px-1">
-          <div
-            class="card bg-black border-secondary shadow-sm text-center h-100"
-          >
+          <div class="card bg-black border-secondary shadow-sm h-100">
             <div
               class="card-body p-2 p-md-4 d-flex flex-column justify-content-center"
             >
-              <h1 class="fw-bold h2 mb-2">Select Mode</h1>
+              <div
+                class="d-flex justify-content-between align-items-start align-items-md-center mb-3 mb-md-4 gap-2 flex-wrap"
+              >
+                <div class="flex-grow-1 text-start">
+                  <h1 class="fw-bold h2 mb-2">Select Mode</h1>
 
-              <p class="text-secondary small mb-3 mb-md-4">
-                Choose a difficulty to play.
-              </p>
+                  <p class="text-secondary small mb-0">
+                    Choose a difficulty to play.
+                  </p>
+                </div>
+
+                <div class="ms-md-auto">
+                  <input type="checkbox" id="endlessToggle" hidden />
+
+                  <label
+                    for="endlessToggle"
+                    class="d-inline-flex align-items-center gap-2 px-3 py-1 border border-secondary rounded"
+                    style="cursor: pointer; user-select: none"
+                    aria-label="Toggle endless mode"
+                  >
+                    <div class="d-flex flex-column align-items-center">
+                      <svg
+                        width="40"
+                        height="40"
+                        viewBox="0 0 100 100"
+                        aria-hidden="true"
+                        role="img"
+                      >
+                        <rect
+                          x="22"
+                          y="68"
+                          width="56"
+                          height="18"
+                          rx="6"
+                          fill="#343a40"
+                        />
+                        <circle cx="50" cy="68" r="5" fill="#6c757d" />
+
+                        <g id="endlessLever" transform="rotate(-35 50 68)">
+                          <rect
+                            x="47"
+                            y="30"
+                            width="6"
+                            height="38"
+                            rx="3"
+                            fill="#adb5bd"
+                          />
+                          <circle
+                            cx="50"
+                            cy="30"
+                            r="9"
+                            fill="#dee2e6"
+                            stroke="#6c757d"
+                            stroke-width="2"
+                          />
+                        </g>
+                      </svg>
+
+                      <span class="small text-secondary lh-1">Endless</span>
+                    </div>
+
+                    <strong
+                      id="endlessLabel"
+                      class="small text-secondary ms-2 d-inline-block text-center"
+                      style="width: 2.5rem"
+                    >
+                      OFF
+                    </strong>
+                  </label>
+                </div>
+              </div>
 
               <div class="row g-2 g-md-3 justify-content-center">
                 <div class="col-6 d-flex">
@@ -41,14 +105,16 @@
                       </p>
 
                       <a
-                        href="game-easy.html"
-                        class="btn btn-success btn-sm w-100 mt-auto d-md-none"
+                        href="game-easy.html?mode=easy"
+                        data-base-href="game-easy.html?mode=easy"
+                        class="mode-link btn btn-success btn-sm w-100 mt-auto d-md-none"
                       >
                         Play Easy
                       </a>
                       <a
-                        href="game-easy.html"
-                        class="btn btn-success btn-lg w-100 mt-auto d-none d-md-inline-block"
+                        href="game-easy.html?mode=easy"
+                        data-base-href="game-easy.html?mode=easy"
+                        class="mode-link btn btn-success btn-lg w-100 mt-auto d-none d-md-inline-block"
                       >
                         Play Easy
                       </a>
@@ -68,14 +134,16 @@
                       </p>
 
                       <a
-                        href="game-normal.html"
-                        class="btn btn-info text-dark btn-sm w-100 mt-auto d-md-none"
+                        href="game-normal.html?mode=normal"
+                        data-base-href="game-normal.html?mode=normal"
+                        class="mode-link btn btn-info text-dark btn-sm w-100 mt-auto d-md-none"
                       >
                         Play Normal
                       </a>
                       <a
-                        href="game-normal.html"
-                        class="btn btn-info text-dark btn-lg w-100 mt-auto d-none d-md-inline-block"
+                        href="game-normal.html?mode=normal"
+                        data-base-href="game-normal.html?mode=normal"
+                        class="mode-link btn btn-info text-dark btn-lg w-100 mt-auto d-none d-md-inline-block"
                       >
                         Play Normal
                       </a>
@@ -94,14 +162,16 @@
                       </p>
 
                       <a
-                        href="game-hard.html"
-                        class="btn btn-warning text-dark btn-sm w-100 mt-auto d-md-none"
+                        href="game-hard.html?mode=hard"
+                        data-base-href="game-hard.html?mode=hard"
+                        class="mode-link btn btn-warning text-dark btn-sm w-100 mt-auto d-md-none"
                       >
                         Play Hard
                       </a>
                       <a
-                        href="game-hard.html"
-                        class="btn btn-warning text-dark btn-lg w-100 mt-auto d-none d-md-inline-block"
+                        href="game-hard.html?mode=hard"
+                        data-base-href="game-hard.html?mode=hard"
+                        class="mode-link btn btn-warning text-dark btn-lg w-100 mt-auto d-none d-md-inline-block"
                       >
                         Play Hard
                       </a>
@@ -120,14 +190,16 @@
                       </p>
 
                       <a
-                        href="game-extreme.html"
-                        class="btn btn-danger btn-sm w-100 mt-auto d-md-none"
+                        href="game-extreme.html?mode=extreme"
+                        data-base-href="game-extreme.html?mode=extreme"
+                        class="mode-link btn btn-danger btn-sm w-100 mt-auto d-md-none"
                       >
                         Play Extreme
                       </a>
                       <a
-                        href="game-extreme.html"
-                        class="btn btn-danger btn-lg w-100 mt-auto d-none d-md-inline-block"
+                        href="game-extreme.html?mode=extreme"
+                        data-base-href="game-extreme.html?mode=extreme"
+                        class="mode-link btn btn-danger btn-lg w-100 mt-auto d-none d-md-inline-block"
                       >
                         Play Extreme
                       </a>
@@ -149,5 +221,34 @@
         </div>
       </div>
     </main>
+
+    <script>
+      const endlessToggle = document.getElementById("endlessToggle");
+      const endlessLever = document.getElementById("endlessLever");
+      const endlessLabel = document.getElementById("endlessLabel");
+      const modeLinks = document.querySelectorAll(".mode-link");
+
+      function updateEndlessUI() {
+        const isOn = endlessToggle.checked;
+
+        endlessLever.setAttribute(
+          "transform",
+          isOn ? "rotate(35 50 68)" : "rotate(-35 50 68)",
+        );
+
+        endlessLabel.textContent = isOn ? "ON" : "OFF";
+        endlessLabel.className = isOn
+          ? "small text-warning ms-2 d-inline-block text-center"
+          : "small text-secondary ms-2 d-inline-block text-center";
+
+        modeLinks.forEach((link) => {
+          const baseHref = link.dataset.baseHref;
+          link.href = isOn ? `${baseHref}&endless=1` : baseHref;
+        });
+      }
+
+      endlessToggle.addEventListener("change", updateEndlessUI);
+      updateEndlessUI();
+    </script>
   </body>
 </html>

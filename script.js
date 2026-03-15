@@ -15,15 +15,24 @@ const gates = ["AND", "OR", "NAND", "NOR", "XOR", "XNOR"];
 const MAX_ROUNDS = 10;
 
 let mode = "easy";
-let currentGate = "AND";
-let currentGate1 = "AND";
-let currentGate2 = "OR";
-let currentGate3 = "XOR";
-let currentGate4 = "NOR";
+let endless = false;
 
+let currentGates = [];
 let round = 1;
 let score = 0;
 let locked = false;
+
+let timerWrap = null;
+let timerBar = null;
+let timerValue = 100;
+
+let endlessRunning = false;
+let endlessFrameId = null;
+let lastTimestamp = 0;
+
+let streak = 0;
+let comboPopup = null;
+let comboPopupTimeout = null;
 
 function randomGate() {
   return gates[Math.floor(Math.random() * gates.length)];
@@ -48,112 +57,71 @@ function evaluateGate(gate, left, right) {
   }
 }
 
-function getNormalOutputs() {
-  const { a, b, c, d } = getLeverStates();
+function getAllOutputs() {
+  const states = getLeverStates();
 
-  const output1 = evaluateGate(currentGate1, a, b);
-  const output2 = evaluateGate(currentGate2, c, d);
-  const finalOutput = output1 && output2;
+  if (mode === "extreme") {
+    const o1 = evaluateGate(currentGates[0], states.a, states.b);
+    const o2 = evaluateGate(currentGates[1], states.c, states.d);
+    const o3 = evaluateGate(currentGates[2], o1, o2);
+    const final = evaluateGate(currentGates[3], o3, states.e);
+    return { output1: o1, output2: o2, output3: o3, finalOutput: final };
+  }
 
-  return {
-    output1,
-    output2,
-    finalOutput,
-  };
+  if (mode === "hard") {
+    const o1 = evaluateGate(currentGates[0], states.a, states.b);
+    const o2 = evaluateGate(currentGates[1], states.c, states.d);
+    const final = evaluateGate(currentGates[2], o1, o2);
+    return { output1: o1, output2: o2, finalOutput: final };
+  }
+
+  if (mode === "normal") {
+    const o1 = evaluateGate(currentGates[0], states.a, states.b);
+    const o2 = evaluateGate(currentGates[1], states.c, states.d);
+    const final = o1 && o2;
+    return { output1: o1, output2: o2, finalOutput: final };
+  }
+
+  const final = evaluateGate(currentGates[0], states.a, states.b);
+  return { finalOutput: final };
 }
 
-function getHardOutputs() {
-  const { a, b, c, d } = getLeverStates();
-
-  const output1 = evaluateGate(currentGate1, a, b);
-  const output2 = evaluateGate(currentGate2, c, d);
-  const finalOutput = evaluateGate(currentGate3, output1, output2);
-
-  return {
-    output1,
-    output2,
-    finalOutput,
-  };
-}
-
-function getExtremeOutputs() {
-  const { a, b, c, d, e } = getLeverStates();
-
-  const output1 = evaluateGate(currentGate1, a, b);
-  const output2 = evaluateGate(currentGate2, c, d);
-  const output3 = evaluateGate(currentGate3, output1, output2);
-  const finalOutput = evaluateGate(currentGate4, output3, e);
-
-  return {
-    output1,
-    output2,
-    output3,
-    finalOutput,
-  };
+function getOutput() {
+  return getAllOutputs().finalOutput;
 }
 
 function updateGateDisplay() {
   if (mode === "extreme") {
     setGateNames({
-      gate1: currentGate1,
-      gate2: currentGate2,
-      gate3: currentGate3,
-      gate4: currentGate4,
+      gate1: currentGates[0],
+      gate2: currentGates[1],
+      gate3: currentGates[2],
+      gate4: currentGates[3],
     });
     return;
   }
-
   if (mode === "hard") {
     setGateNames({
-      gate1: currentGate1,
-      gate2: currentGate2,
-      gate3: currentGate3,
+      gate1: currentGates[0],
+      gate2: currentGates[1],
+      gate3: currentGates[2],
     });
     return;
   }
-
   if (mode === "normal") {
     setGateNames({
-      gate1: currentGate1,
-      gate2: currentGate2,
+      gate1: currentGates[0],
+      gate2: currentGates[1],
     });
     return;
   }
-
-  setGateName(currentGate);
-}
-
-function getOutput() {
-  const { a, b } = getLeverStates();
-
-  if (mode === "extreme") {
-    return getExtremeOutputs().finalOutput;
-  }
-
-  if (mode === "hard") {
-    return getHardOutputs().finalOutput;
-  }
-
-  if (mode === "normal") {
-    return getNormalOutputs().finalOutput;
-  }
-
-  return evaluateGate(currentGate, a, b);
+  setGateName(currentGates[0]);
 }
 
 function getResetConfig() {
-  if (mode === "extreme") {
-    return { miniCount: 3, includeMain: true };
-  }
-
-  if (mode === "hard") {
+  if (mode === "extreme") return { miniCount: 3, includeMain: true };
+  if (mode === "hard" || mode === "normal")
     return { miniCount: 2, includeMain: true };
-  }
-
-  if (mode === "normal") {
-    return { miniCount: 2, includeMain: true };
-  }
-
   return { miniCount: 0, includeMain: true };
 }
 
@@ -164,31 +132,136 @@ function getSubmitDelay() {
   return 1100;
 }
 
-function startRound() {
-  if (mode === "extreme") {
-    currentGate1 = randomGate();
-    currentGate2 = randomGate();
-    currentGate3 = randomGate();
-    currentGate4 = randomGate();
+function updateTimerBar() {
+  if (!timerBar) return;
 
-    setLevers({ a: false, b: false, c: false, d: false, e: false });
-  } else if (mode === "hard") {
-    currentGate1 = randomGate();
-    currentGate2 = randomGate();
-    currentGate3 = randomGate();
+  const clamped = Math.max(0, Math.min(100, timerValue));
+  timerBar.style.width = `${clamped}%`;
+  timerBar.setAttribute("aria-valuenow", String(Math.round(clamped)));
 
-    setLevers({ a: false, b: false, c: false, d: false });
-  } else if (mode === "normal") {
-    currentGate1 = randomGate();
-    currentGate2 = randomGate();
+  timerBar.classList.remove("bg-success", "bg-warning", "bg-danger");
+  if (clamped > 60) timerBar.classList.add("bg-success");
+  else if (clamped > 30) timerBar.classList.add("bg-warning");
+  else timerBar.classList.add("bg-danger");
+}
 
-    setLevers({ a: false, b: false, c: false, d: false });
-  } else {
-    currentGate = randomGate();
+function getDrainPerSecond() {
+  return 2.5 + (round - 1) * 0.35;
+}
 
-    setLevers({ a: false, b: false });
+function getComboBonus() {
+  if (!endless) return 0;
+  return Math.floor(streak / 5) * 0.5;
+}
+
+function getEndlessDelta(isCorrect) {
+  const scale = 1 + (round - 1) * 0.04;
+  return isCorrect ? 4 * scale + getComboBonus() : -(5.2 * scale);
+}
+
+function showComboPopup() {
+  if (!endless || !comboPopup) return;
+  if (streak < 5 || streak % 5 !== 0) return;
+
+  comboPopup.textContent = `${streak} Combo`;
+  comboPopup.classList.remove("d-none");
+
+  if (comboPopupTimeout) clearTimeout(comboPopupTimeout);
+  comboPopupTimeout = setTimeout(() => {
+    comboPopup.classList.add("d-none");
+  }, 900);
+}
+
+function stopEndlessTimer() {
+  endlessRunning = false;
+  lastTimestamp = 0;
+  if (endlessFrameId) {
+    cancelAnimationFrame(endlessFrameId);
+    endlessFrameId = null;
+  }
+}
+
+function finishGame() {
+  stopEndlessTimer();
+
+  sessionStorage.setItem("lightbulbScore", String(score));
+  sessionStorage.setItem(
+    "lightbulbLastPage",
+    window.location.pathname.split("/").pop(),
+  );
+  sessionStorage.setItem("lightbulbMode", mode);
+  sessionStorage.setItem("lightbulbEndless", endless ? "1" : "0");
+  sessionStorage.setItem("lightbulbStreak", String(streak));
+
+  window.location.href = "results.html";
+}
+
+function endlessTick(timestamp) {
+  if (!endless || !endlessRunning) return;
+
+  if (locked) {
+    lastTimestamp = timestamp;
+    endlessFrameId = requestAnimationFrame(endlessTick);
+    return;
   }
 
+  if (!lastTimestamp) lastTimestamp = timestamp;
+
+  let deltaSeconds = (timestamp - lastTimestamp) / 1000;
+  deltaSeconds = Math.min(deltaSeconds, 0.5);
+
+  lastTimestamp = timestamp;
+
+  timerValue -= getDrainPerSecond() * deltaSeconds;
+  updateTimerBar();
+
+  if (timerValue <= 0) {
+    timerValue = 0;
+    updateTimerBar();
+    finishGame();
+    return;
+  }
+
+  endlessFrameId = requestAnimationFrame(endlessTick);
+}
+
+function startEndlessTimer() {
+  if (!endless || endlessRunning) return;
+
+  endlessRunning = true;
+  lastTimestamp = 0;
+  endlessFrameId = requestAnimationFrame(endlessTick);
+}
+
+function applyEndlessResult(isCorrect) {
+  if (!endless) return;
+
+  timerValue += getEndlessDelta(isCorrect);
+  timerValue = Math.max(0, Math.min(100, timerValue));
+  updateTimerBar();
+
+  if (timerValue <= 0) finishGame();
+}
+
+function startRound() {
+  currentGates = [];
+  let levers = {};
+
+  if (mode === "extreme") {
+    currentGates = Array.from({ length: 4 }, randomGate);
+    levers = { a: false, b: false, c: false, d: false, e: false };
+  } else if (mode === "hard") {
+    currentGates = Array.from({ length: 3 }, randomGate);
+    levers = { a: false, b: false, c: false, d: false };
+  } else if (mode === "normal") {
+    currentGates = Array.from({ length: 2 }, randomGate);
+    levers = { a: false, b: false, c: false, d: false };
+  } else {
+    currentGates = [randomGate()];
+    levers = { a: false, b: false };
+  }
+
+  setLevers(levers);
   updateGateDisplay();
   resetBulbs(getResetConfig());
 
@@ -197,86 +270,53 @@ function startRound() {
   setStatus("Waiting for submission", "small text-secondary mt-1");
 }
 
-function finishGame() {
-  sessionStorage.setItem("lightbulbScore", String(score));
-  sessionStorage.setItem(
-    "lightbulbLastPage",
-    window.location.pathname.split("/").pop(),
-  );
-  sessionStorage.setItem("lightbulbMode", mode);
-  window.location.href = "results.html";
-}
-
 async function checkAnswer() {
   if (locked) return;
-
   locked = true;
 
-  let output = false;
+  const outputs = getAllOutputs();
+  const output = outputs.finalOutput;
+  const isCorrect = !!output;
+
+  if (isCorrect) {
+    streak += 1;
+    applyEndlessResult(true);
+    showComboPopup();
+  } else {
+    streak = 0;
+    applyEndlessResult(false);
+  }
 
   if (mode === "extreme") {
-    const { output1, output2, output3, finalOutput } = getExtremeOutputs();
-
-    output = await playBulbSequence({
+    await playBulbSequence({
       reset: { miniCount: 3, includeMain: true },
       steps: [
         {
           delay: 160,
           miniBulbs: [
-            { index: 1, isOn: output1 },
-            { index: 2, isOn: output2 },
+            { index: 1, isOn: outputs.output1 },
+            { index: 2, isOn: outputs.output2 },
           ],
         },
-        {
-          delay: 280,
-          miniBulbs: [{ index: 3, isOn: output3 }],
-        },
-        {
-          delay: 280,
-          mainBulb: finalOutput,
-        },
+        { delay: 280, miniBulbs: [{ index: 3, isOn: outputs.output3 }] },
+        { delay: 280, mainBulb: output },
       ],
     });
-  } else if (mode === "hard") {
-    const { output1, output2, finalOutput } = getHardOutputs();
-
-    output = await playBulbSequence({
+  } else if (mode === "hard" || mode === "normal") {
+    await playBulbSequence({
       reset: { miniCount: 2, includeMain: true },
       steps: [
         {
           delay: 160,
           miniBulbs: [
-            { index: 1, isOn: output1 },
-            { index: 2, isOn: output2 },
+            { index: 1, isOn: outputs.output1 },
+            { index: 2, isOn: outputs.output2 },
           ],
         },
-        {
-          delay: 280,
-          mainBulb: finalOutput,
-        },
-      ],
-    });
-  } else if (mode === "normal") {
-    const { output1, output2, finalOutput } = getNormalOutputs();
-
-    output = await playBulbSequence({
-      reset: { miniCount: 2, includeMain: true },
-      steps: [
-        {
-          delay: 160,
-          miniBulbs: [
-            { index: 1, isOn: output1 },
-            { index: 2, isOn: output2 },
-          ],
-        },
-        {
-          delay: 280,
-          mainBulb: finalOutput,
-        },
+        { delay: 280, mainBulb: output },
       ],
     });
   } else {
-    output = getOutput();
     setBulb(output);
   }
 
@@ -291,7 +331,11 @@ async function checkAnswer() {
   }
 
   setTimeout(() => {
-    if (round >= MAX_ROUNDS) {
+    if (endless && timerValue <= 0) {
+      finishGame();
+      return;
+    }
+    if (!endless && round >= MAX_ROUNDS) {
       finishGame();
       return;
     }
@@ -305,28 +349,35 @@ async function checkAnswer() {
 document.addEventListener("DOMContentLoaded", function () {
   const submitButton = document.getElementById("submitButton");
   const bodyMode = document.body.dataset.mode;
-  const queryMode = new URLSearchParams(window.location.search).get("mode");
+  const params = new URLSearchParams(window.location.search);
+  const queryMode = params.get("mode");
+  const endlessParam = params.get("endless");
+
+  timerWrap = document.getElementById("timerWrap");
+  timerBar = document.getElementById("timerBar");
+  comboPopup = document.getElementById("comboPopup");
 
   mode = bodyMode || queryMode || "easy";
+  endless = endlessParam === "1";
+  streak = 0;
 
-  bindLeverEvents({
-    isLocked: function () {
-      return locked;
-    },
-  });
+  if (endless && timerWrap) {
+    timerWrap.classList.remove("d-none");
+    timerValue = 100;
+    updateTimerBar();
+    startEndlessTimer();
+  }
+
+  bindLeverEvents({ isLocked: () => locked });
 
   if (submitButton) {
     submitButton.addEventListener("click", checkAnswer);
   }
 
   document.addEventListener("keydown", function (e) {
-    if (e.repeat) return;
-    if (locked) return;
-
-    if (e.key === "Enter") {
-      e.preventDefault();
-      checkAnswer();
-    }
+    if (e.repeat || locked || e.key !== "Enter") return;
+    e.preventDefault();
+    checkAnswer();
   });
 
   setRound(round);
