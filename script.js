@@ -146,7 +146,7 @@ function updateTimerBar() {
 }
 
 function getDrainPerSecond() {
-  return 2.5 + (round - 1) * 0.35;
+  return 0.5 + Math.pow(round - 1, 1.45) * 0.15;
 }
 
 function getComboBonus() {
@@ -155,8 +155,8 @@ function getComboBonus() {
 }
 
 function getEndlessDelta(isCorrect) {
-  const scale = 1 + (round - 1) * 0.04;
-  return isCorrect ? 4 * scale + getComboBonus() : -(5.2 * scale);
+  const scale = 1 + Math.pow(round - 1, 1.15) * 0.025;
+  return isCorrect ? 4.2 * scale + getComboBonus() : -(4.6 * scale);
 }
 
 function showComboPopup() {
