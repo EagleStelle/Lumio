@@ -27,6 +27,10 @@
                 ><span id="scoreSuffix"> / 10</span>
               </div>
 
+              <p class="text-secondary small mb-3 d-none" id="streakDisplay">
+                Best streak: <span id="finalStreak">0</span>
+              </p>
+
               <p class="mb-4" id="scoreMessage">Nice try.</p>
 
               <div class="d-flex justify-content-center gap-2">
@@ -47,6 +51,7 @@
         sessionStorage.getItem("lightbulbLastPage") || "game-easy.html";
       const mode = sessionStorage.getItem("lightbulbMode") || "easy";
       const endless = sessionStorage.getItem("lightbulbEndless") === "1";
+      const streak = Number(sessionStorage.getItem("lightbulbStreak") || 0);
 
       const resultsCard = document.getElementById("resultsCard");
       const scoreDisplay = document.getElementById("scoreDisplay");
@@ -56,6 +61,11 @@
       const scoreMessage = document.getElementById("scoreMessage");
 
       document.getElementById("finalScore").textContent = score;
+
+      if (streak > 0) {
+        document.getElementById("finalStreak").textContent = streak;
+        document.getElementById("streakDisplay").classList.remove("d-none");
+      }
 
       if (endless) {
         scoreSuffix.textContent = "";

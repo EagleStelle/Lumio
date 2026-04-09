@@ -86,10 +86,6 @@ function getAllOutputs() {
   return { finalOutput: final };
 }
 
-function getOutput() {
-  return getAllOutputs().finalOutput;
-}
-
 function updateGateDisplay() {
   if (mode === "extreme") {
     setGateNames({
@@ -166,11 +162,11 @@ function showComboPopup() {
   if (streak < 5 || streak % 5 !== 0) return;
 
   comboPopup.textContent = `${streak} Combo`;
-  comboPopup.classList.remove("d-none");
+  comboPopup.classList.add("show");
 
   if (comboPopupTimeout) clearTimeout(comboPopupTimeout);
   comboPopupTimeout = setTimeout(() => {
-    comboPopup.classList.add("d-none");
+    comboPopup.classList.remove("show");
   }, 900);
 }
 
