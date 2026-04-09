@@ -1,13 +1,6 @@
+import { playSound } from "./sound.js";
+
 const leverKeys = ["A", "B", "C", "D", "E"];
-
-function playLeverSound() {
-  const audio = new Audio(
-    "data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUAAAAAAAP//AAD/AP8A/wD/AP//AAD//wAA//8AAP8A/wAAAP//AAD/AP8A/wD/AP//AAD//wAA",
-  );
-
-  audio.volume = 0.35;
-  audio.play().catch(() => {});
-}
 
 function getSwitch(key) {
   return document.getElementById(`switch${key}`);
@@ -28,7 +21,7 @@ function toggleLeverByKey(key) {
   switchEl.checked = !switchEl.checked;
   updateLeverGraphics();
   updateLeverLabels();
-  playLeverSound();
+  playSound("lever");
   return true;
 }
 
@@ -93,7 +86,7 @@ export function bindLeverEvents({ isLocked } = {}) {
 
     updateLeverGraphics();
     updateLeverLabels();
-    playLeverSound();
+    playSound("lever");
   }
 
   function handleKeydown(e) {

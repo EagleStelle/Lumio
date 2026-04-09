@@ -81,20 +81,6 @@ export function setGateNames(gates = {}) {
   });
 }
 
-export function setExpressionLabels(labels = {}) {
-  Object.entries(labels).forEach(([key, value]) => {
-    const match = key.match(/^gate(\d+)$/i);
-    if (!match) return;
-
-    const gateNumber = match[1];
-    const element = getById(`gate${gateNumber}ExpressionLabel`);
-
-    if (element && value != null) {
-      element.textContent = value;
-    }
-  });
-}
-
 export function setStatus(text, className = "small text-secondary mt-1") {
   const status = getById("bulbStatus");
   if (!status) return;
